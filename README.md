@@ -1,15 +1,15 @@
-# 🏴‍☠️ Cajun Catan
+# 🎯 Claude Cajun Catan
 
-A modern, Cajun-themed implementation of Settlers of Catan featuring a TypeScript rule engine and AI players powered by local LLMs.
+A modern implementation of Settlers of Catan featuring a TypeScript rule engine and AI players powered by local LLMs. Built for Cajun with modularity, type safety, and AI-driven gameplay in mind.
 
 ## 🎯 Overview
 
-This project reimagines the classic board game Settlers of Catan with a Southern Louisiana twist, complete with bayous, Creole culture, and spicy gameplay mechanics. The implementation focuses on modularity, type safety, and AI-driven gameplay using local language models.
+This project implements the classic board game Settlers of Catan with a focus on clean architecture, comprehensive rule enforcement, and intelligent AI opponents. The implementation emphasizes modularity, type safety, and AI-driven gameplay using local language models.
 
 ## 🏗️ Architecture
 
 ```
-cajun-catan/
+claude-cajun-catan/
 ├── rule-engine/          # Core game logic and state management
 ├── ai-player/            # AI decision-making service
 ├── docs/                 # Game rules and technical documentation
@@ -62,7 +62,7 @@ cajun-catan/
 ### 📖 Documentation
 **Status: 🟢 Complete**
 
-- **Game Rules**: Complete Cajun Catan rulebook with thematic adaptations
+- **Game Rules**: Complete Catan rulebook implementation
 - **Technical Specification**: Detailed implementation guide for all game mechanics
 - **API Documentation**: Comprehensive endpoint documentation
 - **Development Guides**: Setup, testing, and contribution guidelines
@@ -76,21 +76,21 @@ cajun-catan/
 - **Health Checks**: Service monitoring and restart policies
 - **Logging**: Centralized log aggregation
 
-## 🎨 Cajun Theme Elements
+## 🎲 Game Features
 
-### 🌶️ Thematic Adaptations
-- **Bayou Board**: Swampland hexes replace traditional terrain
-- **Creole Resources**: 
-  - Crawfish (Brick) 🦞
-  - Cypress (Wood) 🌲
-  - Cotton (Wool) 🌾
-  - Rice (Wheat) 🌾
-  - Iron (Ore) ⛏️
-- **Cultural Buildings**:
-  - Trading Posts (Settlements) 🏘️
-  - Parish Towns (Cities) 🏛️
-  - Pirogue Routes (Roads) 🛶
-- **Cajun Development Cards**: Themed special actions and victory points
+### 🏗️ Core Mechanics
+- **Standard Catan Board**: Traditional hexagonal terrain layout
+- **Resource Management**: 
+  - Brick 🧱
+  - Wood 🪵
+  - Sheep 🐑
+  - Wheat 🌾
+  - Ore ⛏️
+- **Building System**:
+  - Settlements 🏘️
+  - Cities 🏛️
+  - Roads 🛤️
+- **Development Cards**: Knight, Victory Point, and special action cards
 
 ## 🚀 Getting Started
 
@@ -282,12 +282,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **TypeScript Team** - Type-safe JavaScript development
 - **Jest Testing Framework** - Comprehensive testing capabilities
 
-## 🎭 Cajun Spirit
-
-> *"Laissez les bons temps rouler!"* - Let the good times roll!
-
-This project captures the spirit of Louisiana's vibrant culture while delivering a modern, AI-enhanced gaming experience. From the cypress swamps to the bustling parishes, every element reflects the unique character of Cajun Louisiana.
-
 ---
 
-**Made with ❤️ in the digital bayou**
+**Built with ❤️ for Cajun**
