@@ -1,0 +1,41 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: catan-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  ai-player:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: catan-ai-player
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+      - OLLAMA_MODEL=gemma3:270m
+      - PORT=3001
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ../src:/app/src:ro
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+    driver: local
