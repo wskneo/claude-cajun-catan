@@ -85,7 +85,7 @@ claude-cajun-catan/
 - ✅ Building placement optimization
 - ✅ Trading decision logic
 - ✅ Development card usage strategies
-- ⚠️ Limited LLM reasoning (basic model)
+- ⚠️ Limited LLM reasoning (Gemma2 270M - sufficient for Phase 2 goals)
 
 ### 📖 Documentation
 **Status: 🟢 Complete**
@@ -230,11 +230,12 @@ npm run lint           # ESLint validation
 
 ### 🎯 Phase 2: Enhanced AI (Q2 2025)
 **Priority: High**
-- [ ] **Advanced LLM Integration**: Upgrade to larger, more capable models
 - [ ] **Strategic Planning**: Multi-turn planning and goal setting
 - [ ] **Opponent Modeling**: Learn and adapt to human player patterns
 - [ ] **Natural Language Interface**: Chat-based gameplay and negotiation
 - [ ] **Personality Variants**: Multiple AI archetypes with distinct strategies
+
+*Note: Advanced LLM Integration (larger models) moved to Phase 4. Current Gemma2 270M provides adequate performance for Phase 2 strategic enhancements, allowing focus on AI intelligence algorithms rather than model infrastructure.*
 
 ### 🎯 Phase 3: Web Frontend (Q2 2025)
 **Priority: Medium**
@@ -246,6 +247,7 @@ npm run lint           # ESLint validation
 
 ### 🎯 Phase 4: Advanced Features (Q3 2025)
 **Priority: Medium**
+- [ ] **Advanced LLM Integration**: Upgrade to larger, more capable models
 - [ ] **Tournament System**: Ranked matches and leaderboards
 - [ ] **Replay System**: Game history and analysis tools
 - [ ] **Custom Game Modes**: Variant rules and house rules support
