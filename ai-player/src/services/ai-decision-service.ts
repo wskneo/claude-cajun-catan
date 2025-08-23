@@ -2,7 +2,9 @@ import { OllamaClient } from './ollama-client';
 import { GameStateSerializer } from './game-state-serializer';
 import { ActionParser } from './action-parser';
 import { HeuristicAI } from '../heuristics/heuristic-ai';
+import { StrategicPlanner } from './strategic-planner';
 import { CatanPrompts } from '../prompts/catan-prompts';
+import { StrategicPlannerConfig } from '../types/strategic-types';
 import { 
   AIDecisionRequest, 
   AIDecisionResponse, 
@@ -17,15 +19,17 @@ export class AIDecisionService {
   private ollamaClient: OllamaClient;
   private actionParser: ActionParser;
   private heuristicAI: HeuristicAI;
+  private strategicPlanner: StrategicPlanner;
   private logger: Logger;
   private config: AIPlayerConfig;
 
-  constructor(config: AIPlayerConfig) {
+  constructor(config: AIPlayerConfig, strategicConfig?: Partial<StrategicPlannerConfig>) {
     this.config = config;
     this.logger = createLogger('AIDecisionService');
     this.ollamaClient = new OllamaClient(config);
     this.actionParser = new ActionParser();
     this.heuristicAI = new HeuristicAI();
+    this.strategicPlanner = new StrategicPlanner(strategicConfig);
   }
 
   /**
@@ -43,6 +47,39 @@ export class AIDecisionService {
     });
 
     try {
+      // Update strategic plan
+      this.strategicPlanner.updatePlan(request.gameState, request.playerId);
+      
+      // Get strategic recommendation first
+      const strategicRecommendation = this.strategicPlanner.getStrategicRecommendation(
+        request.gameState,
+        request.playerId,
+        request.validActions
+      );
+
+      // If we have a high-priority strategic action, consider using it
+      if (strategicRecommendation && strategicRecommendation.priority >= 8) {
+        this.logger.info('Using strategic recommendation', {
+          playerId: request.playerId,
+          actionType: strategicRecommendation.action,
+          priority: strategicRecommendation.priority,
+          reasoning: strategicRecommendation.reasoning
+        });
+
+        const strategicAction = {
+          type: strategicRecommendation.action,
+          playerId: request.playerId,
+          payload: {} // Let the action parser handle specific payload
+        };
+
+        return {
+          action: strategicAction,
+          reasoning: `Strategic decision: ${strategicRecommendation.reasoning}`,
+          confidence: 0.85, // High confidence for strategic decisions
+          processingTimeMs: Date.now() - startTime
+        };
+      }
+
       // Try LLM decision first
       const llmResult = await this.tryLLMDecision(request, timeoutMs);
       if (llmResult.success && llmResult.action) {
@@ -61,10 +98,33 @@ export class AIDecisionService {
         };
       }
 
+      // Try strategic recommendation as secondary option
+      if (strategicRecommendation && strategicRecommendation.priority >= 5) {
+        this.logger.info('Using strategic fallback', {
+          playerId: request.playerId,
+          actionType: strategicRecommendation.action,
+          priority: strategicRecommendation.priority
+        });
+
+        const strategicAction = {
+          type: strategicRecommendation.action,
+          playerId: request.playerId,
+          payload: {}
+        };
+
+        return {
+          action: strategicAction,
+          reasoning: `Strategic fallback: ${strategicRecommendation.reasoning}`,
+          confidence: 0.7,
+          processingTimeMs: Date.now() - startTime
+        };
+      }
+
       // Fall back to heuristic AI
       this.logger.warn('Falling back to heuristic AI', {
         playerId: request.playerId,
-        llmError: llmResult.error
+        llmError: llmResult.error,
+        strategicRecommendation: strategicRecommendation?.action || 'none'
       });
 
       const heuristicAction = this.heuristicAI.makeDecision(
@@ -82,7 +142,9 @@ export class AIDecisionService {
 
       return {
         action: heuristicAction,
-        reasoning: 'Heuristic fallback decision due to LLM unavailability',
+        reasoning: strategicRecommendation ? 
+          `Heuristic decision (strategic context: ${strategicRecommendation.reasoning.substring(0, 50)}...)` :
+          'Heuristic fallback decision due to LLM unavailability',
         confidence: 0.6, // Lower confidence for fallback
         processingTimeMs: processingTime
       };
@@ -254,6 +316,21 @@ export class AIDecisionService {
     if (player.developmentCards.monopoly > 0) cards.push('monopoly');
     if (player.developmentCards.victoryPoint > 0) cards.push('victoryPoint');
     return cards;
+  }
+
+  /**
+   * Create a strategic plan for the given player
+   */
+  async createStrategicPlan(gameState: GameState, playerId: string): Promise<void> {
+    try {
+      this.logger.info('Creating strategic plan', { playerId, turn: gameState.turn });
+      await this.strategicPlanner.createStrategicPlan(gameState, playerId);
+    } catch (error) {
+      this.logger.error('Failed to create strategic plan', {
+        playerId,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 
   /**

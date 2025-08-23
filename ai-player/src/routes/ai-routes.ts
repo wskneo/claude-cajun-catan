@@ -224,6 +224,67 @@ export function createAIRoutes(aiService: AIDecisionService): Router {
   });
 
   /**
+   * POST /plan - Create strategic plan for a player
+   */
+  router.post('/plan', async (req: Request, res: Response) => {
+    const startTime = Date.now();
+    
+    try {
+      // Simple validation for planning request
+      const { gameState, playerId } = req.body;
+      
+      if (!gameState || !playerId) {
+        return res.status(400).json({
+          error: 'Invalid request',
+          details: 'gameState and playerId are required'
+        });
+      }
+
+      logger.info('Creating strategic plan', {
+        playerId,
+        phase: gameState.phase,
+        turn: gameState.turn,
+        requestId: req.headers['x-request-id'] || 'unknown'
+      });
+
+      // Create strategic plan
+      await aiService.createStrategicPlan(gameState, playerId);
+      
+      const totalTime = Date.now() - startTime;
+      logger.info('Strategic plan created', {
+        playerId,
+        processingTime: totalTime
+      });
+
+      res.json({
+        success: true,
+        message: 'Strategic plan created successfully',
+        meta: {
+          requestTime: new Date().toISOString(),
+          processingTimeMs: totalTime
+        }
+      });
+
+    } catch (error) {
+      const totalTime = Date.now() - startTime;
+      logger.error('Strategic plan creation failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: totalTime,
+        requestId: req.headers['x-request-id'] || 'unknown'
+      });
+
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to create strategic plan',
+        meta: {
+          requestTime: new Date().toISOString(),
+          processingTimeMs: totalTime
+        }
+      });
+    }
+  });
+
+  /**
    * GET /metrics - Basic metrics endpoint
    */
   router.get('/metrics', (req: Request, res: Response) => {

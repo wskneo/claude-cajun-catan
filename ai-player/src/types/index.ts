@@ -150,3 +150,6 @@ export interface LLMDecision {
   action: ParsedAction;
   reasoning: string;
 }
+
+// Re-export strategic planning types
+export * from './strategic-types';

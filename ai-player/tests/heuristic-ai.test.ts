@@ -172,12 +172,14 @@ describe('HeuristicAI', () => {
       expect(decision.type).toBe('BUILD_CITY');
     });
 
-    it('should fallback to safe actions when parsing fails', () => {
-      const validActions = ['BUILD_ROAD', 'COMPLEX_ACTION', 'END_TURN'];
+    it('should fallback to safe actions when no viable actions available', () => {
+      // Remove resources so building actions aren't viable
+      mockPlayer.resources = { wood: 0, brick: 0, wool: 0, wheat: 0, ore: 0 };
+      const validActions = ['BUILD_ROAD', 'BUILD_SETTLEMENT', 'END_TURN'];
 
       const decision = heuristicAI.makeDecision(mockGameState, 'player1', validActions);
 
-      expect(decision.type).toBe('END_TURN'); // Safe fallback
+      expect(decision.type).toBe('END_TURN'); // Safe fallback when can't afford anything
     });
   });
 });

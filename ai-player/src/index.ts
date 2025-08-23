@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { AIDecisionService } from './services/ai-decision-service';
 import { createAIRoutes } from './routes/ai-routes';
-import { AIPlayerConfig } from './types';
+import { AIPlayerConfig, StrategicPlannerConfig } from './types';
 import { createLogger } from './utils/logger';
 import fs from 'fs';
 import path from 'path';
@@ -25,6 +25,20 @@ const config: AIPlayerConfig = {
   temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
   fallbackToHeuristic: process.env.FALLBACK_TO_HEURISTIC !== 'false',
   enableReasoningLog: process.env.ENABLE_REASONING_LOG === 'true'
+};
+
+// Strategic planning configuration
+const strategicConfig: Partial<StrategicPlannerConfig> = {
+  planningHorizon: parseInt(process.env.PLANNING_HORIZON || '5'),
+  replanThreshold: parseFloat(process.env.REPLAN_THRESHOLD || '0.3'),
+  enableOpportunisticPlanning: process.env.OPPORTUNISTIC_PLANNING !== 'false',
+  maxConcurrentGoals: parseInt(process.env.MAX_CONCURRENT_GOALS || '3'),
+  goalPriorityWeights: {
+    victoryPoints: parseFloat(process.env.VP_WEIGHT || '1.0'),
+    resourceEfficiency: parseFloat(process.env.RESOURCE_WEIGHT || '0.7'),
+    opponentBlocking: parseFloat(process.env.BLOCKING_WEIGHT || '0.8'),
+    riskMitigation: parseFloat(process.env.RISK_WEIGHT || '0.6')
+  }
 };
 
 const PORT = parseInt(process.env.PORT || '3001');
@@ -75,9 +89,9 @@ async function startServer() {
       next();
     });
 
-    // Initialize AI service
-    logger.info('Initializing AI Decision Service...');
-    const aiService = new AIDecisionService(config);
+    // Initialize AI service with strategic planning
+    logger.info('Initializing AI Decision Service with Strategic Planning...');
+    const aiService = new AIDecisionService(config, strategicConfig);
 
     // Wait for Ollama to be ready
     logger.info('Checking Ollama connection...');
@@ -117,10 +131,17 @@ async function startServer() {
         timestamp: new Date().toISOString(),
         endpoints: {
           decision: 'POST /ai/decision',
+          plan: 'POST /ai/plan',
           health: 'GET /ai/health',
           status: 'GET /ai/status',
           test: 'POST /ai/test',
           metrics: 'GET /ai/metrics'
+        },
+        features: {
+          strategicPlanning: 'Multi-turn planning and goal setting',
+          llmIntegration: 'Ollama LLM with Gemma2 270M',
+          heuristicFallback: 'Rule-based AI when LLM unavailable',
+          opponentModeling: 'Basic threat and opportunity analysis'
         }
       });
     });
